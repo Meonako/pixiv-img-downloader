@@ -80,8 +80,7 @@ fn loop_get_input(path: &mut Vec<String>) {
 
         match user_input.to_lowercase().trim() {
             "continue" | "download" => break,
-            x if x.is_empty() => continue,
-            x if path.contains(&x.to_owned()) => continue,
+            x if x.is_empty() || path.contains(&x.to_owned()) => continue,
             x if x.starts_with("file:") => match read_to_string(x.replace("file:", "")) {
                 Ok(res) => {
                     let mut list: Vec<String> = res.split("\r\n").map(|x| x.to_owned()).collect();
