@@ -1,0 +1,15 @@
+[package]
+name = "pixiv-downloader"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+colored = { version = "2.0.0", default-features = false }
+reqwest = { version = "0.11.14", default-features = false, features = ["default-tls"] }
+tokio = { version = "1.25.0", default-features = false, features = ["macros", "rt-multi-thread"] }
+
+[profile.release]
+strip = true
+opt-level = "z"
+lto = true
+codegen-units = 1
