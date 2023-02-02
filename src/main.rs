@@ -29,13 +29,13 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         },
     }
 
-    let mut path: Vec<String> = Vec::new();
-
     println!(
         "Prefix URL Path with \"{}\" will read from a file (e.g. {})",
         "file:".cyan(),
         "file:url.txt".bright_blue()
     );
+
+    let mut path: Vec<String> = Vec::new();
 
     loop_get_input(&mut path);
 
@@ -48,7 +48,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     println!("Downloading {} file(s)", path.len().to_string().green());
 
-    let mut tasks = Vec::new();
+    let mut tasks = Vec::with_capacity(path.len());
 
     for img_url in path {
         tasks.push(tokio::spawn(download_image(client.clone(), img_url)));
