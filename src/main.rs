@@ -11,23 +11,9 @@ const REFERER: (&str, &str) = ("referer", "https://www.pixiv.net/");
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
     control::set_virtual_terminal(true).unwrap();
 
-    let mut headers = header::HeaderMap::new();
-    headers.insert(REFERER.0, header::HeaderValue::from_static(REFERER.1));
+    let client = build_client();
 
-    let client = reqwest::Client::builder()
-        .default_headers(headers)
-        .build()
-        .expect("able to build reqwest client");
-
-    match create_dir(OUTPUT_FOLDER) {
-        Ok(_) => println!("Folder \"{}\" Created", OUTPUT_FOLDER.cyan()),
-        Err(err) => match err.kind() {
-            std::io::ErrorKind::AlreadyExists => {
-                println!("Folder \"{}\" Already Exists.", OUTPUT_FOLDER.cyan())
-            }
-            _ => return Err(Box::new(err) as Box<dyn std::error::Error>),
-        },
-    }
+    create_output_folder();
 
     println!(
         "Prefix URL Path with \"{}\" will read from a file (e.g. {})",
@@ -35,7 +21,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         "file:url.txt".bright_blue()
     );
 
-    let mut path: Vec<String> = Vec::new();
+    let mut path = Vec::new();
 
     loop_get_input(&mut path);
 
@@ -125,4 +111,26 @@ async fn download_image(client: reqwest::Client, url: String) {
 
     let mut file = File::create(output_path).expect("to create file");
     file.write_all(&body).expect("to write file");
+}
+
+fn build_client() -> reqwest::Client {
+    let mut headers = header::HeaderMap::new();
+    headers.insert(REFERER.0, header::HeaderValue::from_static(REFERER.1));
+
+    reqwest::Client::builder()
+        .default_headers(headers)
+        .build()
+        .expect("able to build reqwest client")
+}
+
+fn create_output_folder() {
+    match create_dir(OUTPUT_FOLDER) {
+        Ok(_) => println!("Folder \"{}\" Created", OUTPUT_FOLDER.cyan()),
+        Err(err) => match err.kind() {
+            std::io::ErrorKind::AlreadyExists => {
+                println!("Folder \"{}\" Already Exists.", OUTPUT_FOLDER.cyan())
+            }
+            _ => panic!("{}", err),
+        },
+    }
 }
